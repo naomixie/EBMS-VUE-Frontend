@@ -1,6 +1,6 @@
 <template>
   <div id="Shoppingcart">
-    <form v-if="identity === 'Admin'" v-on:submit.prevent="searchBooks">
+    <form v-if="isAdmin" v-on:submit.prevent="searchBooks">
       <input id="searchinput" v-model="searchText" placeholder="Search for account" />
       <button class="Admin" id="searchbutton">GO</button>
     </form>
@@ -8,7 +8,7 @@
       <input id="searchinput" v-model="searchText" placeholder="Search for account" />
       <button class="Guest" id="searchbutton">GO</button>
     </form>
-    
+
     <div id="result">
       <table>
         <thead>
@@ -22,7 +22,7 @@
             <td>{{info.author}}</td>
             <td>{{info.title}}</td>
             <td>{{info.ISBN}}</td>
-            <td>{{info.storage}} </td>
+            <td>{{info.storage}}</td>
             <td>
               <button class="Access green">+</button>
               <button class="Block red">-</button>
@@ -39,6 +39,9 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 export default {
   name: "search",
+  props: {
+    isAdmin: Boolean
+  },
   data() {
     return {
       searchText: "",
@@ -48,7 +51,7 @@ export default {
         { id: 3, title: "Title" },
         { id: 4, title: "ISBN" },
         { id: 5, title: "Storage" },
-        { id: 6 , title:  "Buy"}
+        { id: 6, title: "Buy" }
       ],
       infos: [
         {
@@ -139,7 +142,7 @@ export default {
           ISBN: 12345678,
           storage: "120,000"
         }
-      ],
+      ]
     };
   },
   methods: {},
@@ -177,13 +180,12 @@ export default {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
-.Admin{
-    background-color: rgb(38, 122, 206);
+.Admin {
+  background-color: rgb(38, 122, 206);
 }
 
-.Guest{
+.Guest {
   background-color: mediumseagreen;
-
 }
 
 .green {

@@ -29,7 +29,6 @@
           </thead>
           <tbody>
             <tr v-for="info in filteredinfo" :key="info.id">
-              <td>{{info.img}}</td>
               <td>{{info.author}}</td>
               <td>{{info.title}}</td>
               <td>{{info.ISBN}}</td>
@@ -39,16 +38,26 @@
         </table>
       </div>
     </div>
+    <p>{{infos}}</p>
   </div>
 </template>
 
-
-<script>
+<script src="../js/booklist.js">
+import booklist from "booklist";
 import Vue from "vue";
 import willtable from "vue-willtable";
 
 // require styles
 import "vue-willtable/dist/vue-willtable.min.css";
+
+const BaseUrl = "https://localhost:8080/";
+const SECTIONS = "book,user,order";
+const METHODS = "all";
+const url;
+
+function buildUrl(section, method) {
+  return BaseUrl + section + method + ".json";
+}
 
 export default {
   name: "table",
@@ -56,108 +65,26 @@ export default {
     willtable
   },
   props: {
-    isAdmin: Boolean,
+    infos: [
+      { author: "kkk" },
+      { isbn: 9999 },
+      { storage: 9999 },
+      { title: "mynameis naomi" }
+    ],
+    isAdmin: Boolean
   },
   data() {
     return {
       searchText: "",
       headers: [
-        { id: 1, title: "Books" },
+        //{ id: 1, title: "Books" },
         { id: 2, title: "Author" },
         { id: 3, title: "Title" },
         { id: 4, title: "ISBN" },
         { id: 5, title: "Storage" }
       ],
-      infos: [
-        {
-          id: 1,
-          img: 1,
-          author: "Fitzgerald",
-          title: "The Great Gatsby",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 2,
-          img: 1,
-          author: "Jane",
-          title: "Pride and Prejudice",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 3,
-          img: 1,
-          author: "George",
-          title: "1984",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 4,
-          img: 1,
-          author: "Charles",
-          title: "Great Expectations",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 5,
-          img: 1,
-          author: "Charles",
-          title: "Oliver Twist",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 6,
-          img: 1,
-          author: "Harper Lee",
-          title: "To kill a mocking bird",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 7,
-          img: 1,
-          author: "Tolestoy",
-          title: "War and piece",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 8,
-          img: 1,
-          author: "Hugo",
-          title: "Les Miserables",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 9,
-          img: 1,
-          author: "Son",
-          title: "The art of war",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 10,
-          img: 1,
-          author: "James",
-          title: "The catcher in the rye",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 11,
-          img: 1,
-          author: "Rick",
-          title: "Percy Jackson",
-          ISBN: 12345678,
-          storage: "120,000"
-        }
-      ],
+
+      lala: [],
       columns: [
         {
           type: "selection",
@@ -205,10 +132,36 @@ export default {
   },
 
   mounted() {
+    //console.log(this.infos);
+    this.getDataFromBackend("book", "all");
     this.getData();
   },
 
   methods: {
+    getDataFromBackend() {
+
+      /*
+      var myHeaders = new Headers({
+        Accept: "application/json"
+      });
+
+      var myInit = {
+        method: "GET",
+        headers: myHeaders,
+        //"Content-Type": "application/json"
+        //"Content-Type": "application/x-www-form-urlencoded"
+        mode: "no-cors",
+        cache: "default"
+      };
+
+      var myRequest = new Request("http://localhost:8080/book/all", myInit);
+
+      fetch(myRequest).then(function(response) {
+        this.infos = response.data;
+      });
+      return;
+      */
+    },
     getData() {
       const data = [
         {

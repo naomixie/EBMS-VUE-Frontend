@@ -5,15 +5,26 @@
       <hr id="first" />
       <label>Username</label>
       <br />
-      <input class="loginreg" type="text" placeholder=" Insert your username or email" />
+      <input
+        class="loginreg"
+        type="text"
+        placeholder=" Insert your username or email"
+        v-model="username"
+      />
       <br />
       <label>Password</label>
       <br />
-      <input type="text" class="loginreg" id="password-input" placeholder=" Insert your password" />
+      <input
+        type="text"
+        class="loginreg"
+        id="password-input"
+        placeholder=" Insert your password"
+        v-model="password"
+      />
       <a href="www.baidu.com" class="forgetpass">Forgot your password?</a>
 
       <router-link to="/Admin/Home">
-        <button id="beforeline" class="loginregbutton">Login</button>
+        <button id="beforeline" class="loginregbutton" v-on:click="this.verifyLogin()">Login</button>
       </router-link>
       <hr />
       <router-link to="/Register">
@@ -23,11 +34,71 @@
   </div>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      username: "",
+      password: "",
+      users: []
+    };
+  },
+  methods: {
+    verifyLogin() {
+      /*
+      var myHeaders = new Headers({
+        Accept: "application/json"
+      });
+
+      var myInit = {
+        method: "GET",
+        headers: myHeaders,
+        //"Content-Type": "application/json"
+        //"Content-Type": "application/x-www-form-urlencoded"
+        mode: "no-cors",
+        cache: "default"
+      };
+
+      var myRequest = new Request("http://localhost:8080/user/all", myInit);
+
+      fetch(myRequest).then(function(response) {
+        this.users = response.data;
+        return this.users.filter(user => {
+          return user.name.toLowerCase().match(this.username);
+        });
+      });
+    }*/
+      fetch("http://localhost:8080/users/all", {
+        method: "GET",
+        mode: "no-cors",
+        cache: "default"
+      })
+        .then(function(response) {
+          if (response.ok) {
+            return response.blob();
+          }
+          throw new Error("Network response was not ok.");
+          //this.users = response.data;
+          //return this.usersfilter(user => {
+          //  return user.name.toLowerCase().match(this.username);
+          //});
+        })
+        .catch(function(error) {
+          console.log(
+            "There has been a problem with your fetch operation: ",
+            error.message
+          );
+        });
+    }
+  }
+};
+</script>
+
 <style>
 #Loginbox,
 #Registerbox {
-    position: relative;
-top: 200px;
+  position: relative;
+  top: 200px;
   margin: auto;
   height: 520px;
   width: 350px;
