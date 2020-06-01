@@ -1,11 +1,12 @@
 "use strict";
 
-const BaseUrl = "https://localhost:8080/";
-const SECTIONS = "book,user,order";
-const METHODS = "all";
+const NYTBaseUrl = "https://api.nytimes.com/svc/topstories/v2/";
+const ApiKey = config.KEY;
+const SECTIONS =
+  "home, arts, automobiles, books, business, fashion, food, health, insider, magazine, movies, national, nyregion, obituaries, opinion, politics, realestate, science, sports, sundayreview, technology, theater, tmagazine, travel, upshot, world"; // From NYTimes
 
-function buildUrl(section,method) {
-  return BaseUrl + section + method + ".json";
+function buildUrl(url) {
+  return NYTBaseUrl + url + ".json?api-key=" + ApiKey;
 }
 
 Vue.component("booklist", {

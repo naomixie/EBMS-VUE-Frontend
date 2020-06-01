@@ -21,6 +21,7 @@
         <button id="searchbutton" class="Guest">GO</button>
       </form>
       <div id="result">
+        <!--
         <table>
           <thead>
             <tr>
@@ -29,62 +30,67 @@
           </thead>
           <tbody>
             <tr v-for="info in filteredinfo" :key="info.id">
+              <td>{{info.isbn}}</td>
               <td>{{info.author}}</td>
-              <td>{{info.title}}</td>
-              <td>{{info.ISBN}}</td>
               <td>{{info.storage}}</td>
+              <td>{{info.title}}</td>
             </tr>
           </tbody>
         </table>
+        -->
+        <div id="booksarea">
+          <div v-for="info in filteredinfo" :key="info.id" class="window">
+            <div class="textarea">
+              <router-link :to="processLink(info.title)">
+                {{info.title}}
+                <br />
+                {{info.author}}
+                <br />
+                {{info.storage}}
+                <br />
+                {{info.isbn}}
+                <br />
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <p>{{infos}}</p>
   </div>
 </template>
 
-<script src="../js/booklist.js">
-import booklist from "booklist";
+
+<script>
 import Vue from "vue";
 import willtable from "vue-willtable";
+import api from "./backend-api";
 
 // require styles
 import "vue-willtable/dist/vue-willtable.min.css";
 
-const BaseUrl = "https://localhost:8080/";
-const SECTIONS = "book,user,order";
-const METHODS = "all";
-const url;
-
-function buildUrl(section, method) {
-  return BaseUrl + section + method + ".json";
-}
-
 export default {
-  name: "table",
+  name: "booklist",
   components: {
     willtable
   },
   props: {
-    infos: [
-      { author: "kkk" },
-      { isbn: 9999 },
-      { storage: 9999 },
-      { title: "mynameis naomi" }
-    ],
+    username: String,
     isAdmin: Boolean
   },
   data() {
     return {
+      user:'',
+      booktitle: "",
       searchText: "",
       headers: [
-        //{ id: 1, title: "Books" },
+        { id: 1, title: "ISBN" },
         { id: 2, title: "Author" },
-        { id: 3, title: "Title" },
-        { id: 4, title: "ISBN" },
-        { id: 5, title: "Storage" }
+        { id: 3, title: "Storage" },
+        { id: 4, title: "Title" }
       ],
-
-      lala: [],
+      currentRoute: window.location.pathname,
+      books: [],
+      infos: [],
       columns: [
         {
           type: "selection",
@@ -132,135 +138,127 @@ export default {
   },
 
   mounted() {
-    //console.log(this.infos);
-    this.getDataFromBackend("book", "all");
     this.getData();
+    this.fetchData();
   },
 
   methods: {
-    getDataFromBackend() {
-
-      /*
-      var myHeaders = new Headers({
-        Accept: "application/json"
-      });
-
-      var myInit = {
-        method: "GET",
-        headers: myHeaders,
-        //"Content-Type": "application/json"
-        //"Content-Type": "application/x-www-form-urlencoded"
-        mode: "no-cors",
-        cache: "default"
-      };
-
-      var myRequest = new Request("http://localhost:8080/book/all", myInit);
-
-      fetch(myRequest).then(function(response) {
+    fetchData() {
+      this.user = this.username;
+      this.isSearch = true;
+      console.log("Fetching data from backend...");
+      console.log("Current User: " + this.user);
+      api.getBooks().then(response => {
         this.infos = response.data;
+        //console.log(this.books);
       });
-      return;
-      */
+    },
+    processLink(title) {
+      console.log("is search: " + this.isSearch);
+      return "/Guest/Books/search/" + title;
     },
     getData() {
-      const data = [
-        {
-          id: 1,
-          img: 1,
-          author: "Fitzgerald",
-          title: "The Great Gatsby",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 2,
-          img: 1,
-          author: "Jane",
-          title: "Pride and Prejudice",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 3,
-          img: 1,
-          author: "George",
-          title: "1984",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 4,
-          img: 1,
-          author: "Charles",
-          title: "Great Expectations",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 5,
-          img: 1,
-          author: "Charles",
-          title: "Oliver Twist",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 6,
-          img: 1,
-          author: "Harper Lee",
-          title: "To kill a mocking bird",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 7,
-          img: 1,
-          author: "Tolestoy",
-          title: "War and piece",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 8,
-          img: 1,
-          author: "Hugo",
-          title: "Les Miserables",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 9,
-          img: 1,
-          author: "Son",
-          title: "The art of war",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 10,
-          img: 1,
-          author: "James",
-          title: "The catcher in the rye",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 11,
-          img: 1,
-          author: "Rick",
-          title: "Percy Jackson",
-          ISBN: 12345678,
-          storage: "120,000"
-        }
-      ];
-      const fdata = data.filter(dat => {
-        return dat.title.toLowerCase().match(this.searchText);
-      });
-      this.$refs.willtable.setData(fdata);
+      if (this.isAdmin) {
+        const data = [
+          {
+            id: 1,
+            img: 1,
+            author: "Fitzgerald",
+            title: "The Great Gatsby",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 2,
+            img: 1,
+            author: "Jane",
+            title: "Pride and Prejudice",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 3,
+            img: 1,
+            author: "George",
+            title: "1984",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 4,
+            img: 1,
+            author: "Charles",
+            title: "Great Expectations",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 5,
+            img: 1,
+            author: "Charles",
+            title: "Oliver Twist",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 6,
+            img: 1,
+            author: "Harper Lee",
+            title: "To kill a mocking bird",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 7,
+            img: 1,
+            author: "Tolestoy",
+            title: "War and piece",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 8,
+            img: 1,
+            author: "Hugo",
+            title: "Les Miserables",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 9,
+            img: 1,
+            author: "Son",
+            title: "The art of war",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 10,
+            img: 1,
+            author: "James",
+            title: "The catcher in the rye",
+            ISBN: 12345678,
+            storage: "120,000"
+          },
+          {
+            id: 11,
+            img: 1,
+            author: "Rick",
+            title: "Percy Jackson",
+            ISBN: 12345678,
+            storage: "120,000"
+          }
+        ];
+        const fdata = data.filter(dat => {
+          return dat.title.toLowerCase().match(this.searchText);
+        });
+        this.$refs.willtable.setData(fdata);
+      }
     }
   }
 };
 </script>
+	
 
 <style scoped>
 #Booklist {
@@ -291,6 +289,20 @@ export default {
   font-weight: bold;
   border: 1px solid rgb(0, 0, 0, 0.3);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+#result {
+  margin-top: 50px;
+}
+
+.window {
+  text-align: left;
+  padding: 20px;
+  float: left;
+  width: 300px;
+  margin: 20px;
+  display: block;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
 .Admin {

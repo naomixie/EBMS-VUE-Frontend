@@ -2,7 +2,7 @@
   <div id="NavRoot">
     <div v-if="isAdmin" class="Navbar Admin">
       <button class="account">N</button>
-      <label class="account-name">Naomi</label>
+      <label class="account-name">{{this.username}}</label>
       <br />
       <router-link to="/Admin/Home">
         <button class="NavbarButton Admin">Home</button>
@@ -32,7 +32,7 @@
       <router-link to="/Guest/Home">
         <button class="NavbarButton Guest">Home</button>
       </router-link>
-      <router-link to="/Guest/Books">
+      <router-link to="/Guest/Books/search">
         <button class="NavbarButton Guest">Books</button>
       </router-link>
       <router-link to="/Guest/Shoppingcart">
@@ -41,7 +41,7 @@
       <router-link to="/Guest/Orders">
         <button class="NavbarButton Guest">Orders</button>
       </router-link>
-      <router-link to="/Admin/Statistics">
+      <router-link to="/Guest/Statistics">
         <button class="NavbarButton Guest">Statistics</button>
       </router-link>
       <br />
@@ -55,6 +55,7 @@
 export default {
   name: "Navigate",
   props: {
+    username:String,
     isAdmin: Boolean
   }
 };

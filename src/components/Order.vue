@@ -17,10 +17,10 @@
         </thead>
         <tbody>
           <tr v-for="info in filteredinfo" :key="info.id">
-            <td>{{info.OrderNum}}</td>
-            <td>{{info.client}}</td>
+            <td>{{info.id}}</td>
+            <td>{{info.user}}</td>
             <td>{{info.books}}</td>
-            <td>{{info.Sum}}</td>
+            <td>{{info.sum}}</td>
           </tr>
         </tbody>
       </table>
@@ -30,61 +30,42 @@
 
 <script>
 import { Component, Prop, Vue } from "vue-property-decorator";
+import api from "./backend-api";
 
 export default {
   name: "search",
   props: {
-    isAdmin: Boolean,
+    isAdmin: Boolean
   },
   data() {
     return {
       searchText: "",
-      widthIncrement: 1,
-      heightIncrement: 1,
-      rowHeightIncrement: 1,
       headers: [
         { id: 1, title: "Order No." },
         { id: 2, title: "Client" },
         { id: 3, title: "Books" },
-        { id: 4, title: "Sum" },
+        { id: 4, title: "Sum" }
       ],
-      infos: [
-        {
-          id: 1,
-          OrderNum: 1,
-          client:"Naomi",
-          books: "The Great Gatsby",
-          Sum: 3,
-        },
-        {
-          id: 2,
-          OrderNum: 2,
-          client:"Nicole",
-          books: "The Great Gatsby",
-          Sum: 3,
-        },
-        {
-          id: 3,
-          OrderNum: 3,
-          client:"Naomi",
-          books: "The Great Gatsby",
-          Sum: 3,
-        },
-        {
-          id: 4,
-          OrderNum: 4,
-          client:"Naomi",
-          books: "The Great Gatsby",
-          Sum: 3,
-        },
-      ],
+      infos: []
     };
   },
-  methods: {},
+  mounted() {
+    this.getNOrders();
+  },
   computed: {
     filteredinfo: function() {
       return this.infos.filter(info => {
-        return info.client.toLowerCase().match(this.searchText);
+        return info.books.toLowerCase().match(this.searchText);
+      });
+    }
+  },
+  methods: {
+    getNOrders() {
+      this.user = this.username;
+      console.log("Current user: " + this.username);
+      api.getNOrders().then(response => {
+        this.infos = response.data;
+        console.log(this.infos);
       });
     }
   }
@@ -115,14 +96,13 @@ export default {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
-.Admin{
+.Admin {
   background-color: dodgerblue;
 }
 
-.Guest{
+.Guest {
   background-color: mediumseagreen;
 }
-
 
 .search * {
   box-sizing: border-box;

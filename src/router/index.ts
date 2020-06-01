@@ -3,10 +3,12 @@ import VueRouter from "vue-router";
 import Login from "../views/LoginPage.vue";
 import Register from "../views/RegisterPage.vue";
 import Home from "../views/Home.vue";
-import Booklist from "@/components/BookList.vue";
+import Book from "@/components/Books.vue";
+import booklist from "@/components/BookList.vue";
 import ManageAccount from "@/components/ManageAccount.vue";
 import Shoppingcart from "@/components/ShoppingCart.vue";
 import Order from "@/components/Order.vue";
+import details from "@/components/Details.vue";
 
 Vue.use(VueRouter);
 
@@ -30,11 +32,12 @@ const routes = [
     children: [
       {
         path: "Books",
-        component: Booklist,
+        component: Book,
         props: { isAdmin: true },
       },
       {
         path: "Home",
+        name: "AdminHome",
         props: { isAdmin: true },
       },
       {
@@ -54,7 +57,7 @@ const routes = [
       },
       {
         path: "Statistics",
-        component: Booklist,
+        component: Book,
         props: { isAdmin: true },
       },
     ],
@@ -67,11 +70,21 @@ const routes = [
     children: [
       {
         path: "Books",
-        component: Booklist,
+        component: Book,
         props: { isAdmin: false },
+        children: [
+          {
+            path: "search",
+            component: booklist,
+          },
+          {
+            path: "search/*",
+            component: details,
+          },
+        ],
       },
       {
-        path: "Home",
+        path: "Home/:username",
         name: "GuestHome",
         props: { isAdmin: false },
       },
@@ -87,7 +100,7 @@ const routes = [
       },
       {
         path: "Statistics",
-        component: Booklist,
+        component: Book,
         props: { isAdmin: false },
       },
     ],

@@ -1,12 +1,14 @@
 <template>
   <div id="Shoppingcart">
-    <form v-if="isAdmin" v-on:submit.prevent="searchBooks">
-      <input id="searchinput" v-model="searchText" placeholder="Search for account" />
+    <form v-if="isAdmin">
+      <input id="searchinput" v-model="searchText" placeholder="Search for orders" />
       <button class="Admin" id="searchbutton">GO</button>
+      <button class="Admin" id="Clearbutton">Buy all</button>
     </form>
-    <form v-else v-on:submit.prevent="searchBooks">
-      <input id="searchinput" v-model="searchText" placeholder="Search for account" />
+    <form v-else>
+      <input id="searchinput" v-model="searchText" placeholder="Search for orders" />
       <button class="Guest" id="searchbutton">GO</button>
+      <button class="Guest" id="searchbutton" style="margin-left:20px" @click="ClearCart()">Buy all</button>
     </form>
 
     <div id="result">
@@ -18,11 +20,8 @@
         </thead>
         <tbody>
           <tr v-for="info in filteredinfo" :key="info.id">
-            <td>{{info.img}}</td>
-            <td>{{info.author}}</td>
-            <td>{{info.title}}</td>
-            <td>{{info.ISBN}}</td>
-            <td>{{info.storage}}</td>
+            <td>{{info.id}}</td>
+            <td>{{info.book}}</td>
             <td>
               <button class="Access green">+</button>
               <button class="Block red">-</button>
@@ -36,120 +35,69 @@
 
 <script>
 import { Component, Prop, Vue } from "vue-property-decorator";
+import api from "./backend-api";
 
 export default {
   name: "search",
   props: {
+    username: String,
     isAdmin: Boolean
   },
   data() {
     return {
+      bought: "",
+      count: 0,
+      buymessage: "Bought books: ",
+      user: "",
       searchText: "",
       headers: [
-        { id: 1, title: "Books" },
-        { id: 2, title: "Author" },
-        { id: 3, title: "Title" },
-        { id: 4, title: "ISBN" },
-        { id: 5, title: "Storage" },
-        { id: 6, title: "Buy" }
+        { id: 1, title: "Order.No" },
+        { id: 2, title: "Title" },
+        { id: 3, title: "Buy" }
+        //{ id: 4, title: "Title" }
       ],
-      infos: [
-        {
-          id: 1,
-          img: 1,
-          author: "Fitzgerald",
-          title: "The Great Gatsby",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 2,
-          img: 1,
-          author: "Jane",
-          title: "Pride and Prejudice",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 3,
-          img: 1,
-          author: "George",
-          title: "1984",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 4,
-          img: 1,
-          author: "Charles",
-          title: "Great Expectations",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 5,
-          img: 1,
-          author: "Charles",
-          title: "Oliver Twist",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 6,
-          img: 1,
-          author: "Harper Lee",
-          title: "To kill a mocking bird",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 7,
-          img: 1,
-          author: "Tolestoy",
-          title: "War and piece",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 8,
-          img: 1,
-          author: "Hugo",
-          title: "Les Miserables",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 9,
-          img: 1,
-          author: "Son",
-          title: "The art of war",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 10,
-          img: 1,
-          author: "James",
-          title: "The catcher in the rye",
-          ISBN: 12345678,
-          storage: "120,000"
-        },
-        {
-          id: 11,
-          img: 1,
-          author: "Rick",
-          title: "Percy Jackson",
-          ISBN: 12345678,
-          storage: "120,000"
-        }
-      ]
+      infos: []
     };
   },
-  methods: {},
   computed: {
     filteredinfo: function() {
       return this.infos.filter(info => {
-        return info.title.toLowerCase().match(this.searchText);
+        return info.book.toLowerCase().match(this.searchText);
+      });
+    }
+  },
+  mounted() {
+    this.getOrders();
+  },
+  methods: {
+    ClearCart() {
+      this.infos.forEach(element => {
+        this.count = this.count + 1;
+        this.bought = this.bought + element.book;
+      });
+      console.log(this.bought);
+      api
+        .createNOrder(this.username, this.bought, this.count)
+        .then(response => {
+          //alert(this.bought);
+          console.log(response.data);
+          //console.log("CLEARING CART.");
+        });
+      this.count = 0;
+      api.clearCart().then(response => {
+        this.infos.forEach(element => {
+          this.buymessage = this.buymessage + element.book + " ";
+        });
+        alert(this.buymessage);
+        console.log("CLEARING CART.");
+      });
+    },
+    getOrders() {
+      this.user = this.username;
+      console.log("Current user: " + this.username);
+      api.getOrders().then(response => {
+        this.infos = response.data;
+        console.log(this.infos);
       });
     }
   }
@@ -169,6 +117,7 @@ export default {
 }
 
 #searchbutton {
+  margin-left: 10px;
   width: 100px;
   height: 50px;
   border-radius: 50px;

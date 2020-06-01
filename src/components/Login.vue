@@ -1,5 +1,5 @@
 <template>
-  <div id="Loginbox">
+  <div id="Loginbox" class="login">
     <form>
       <label id="head">Login</label>
       <hr id="first" />
@@ -23,8 +23,8 @@
       />
       <a href="www.baidu.com" class="forgetpass">Forgot your password?</a>
 
-      <router-link to="/Admin/Home">
-        <button id="beforeline" class="loginregbutton" v-on:click="this.verifyLogin()">Login</button>
+      <router-link :to="{name: this.url,params:{username:this.username}}">
+        <button id="beforeline" class="loginregbutton" @click="verifyLogin()">Login</button>
       </router-link>
       <hr />
       <router-link to="/Register">
@@ -35,60 +35,69 @@
 </template>
 
 <script>
+import api from "./backend-api";
+
 export default {
+  name: "login",
   data() {
     return {
+      isAdmin: false,
+      url: "",
+      isUser: false,
+      response: [],
+      errors: [],
+      retrievedUser: [],
       username: "",
       password: "",
       users: []
     };
   },
+
+  mounted() {
+    this.getUserData();
+  },
+  /*Verify if account is a guest or Admin or not a user */
   methods: {
+    getUserData() {
+      api.getUser().then(response => {
+        this.retrievedUser = response.data;
+        console.log(this.retrievedUser);
+      });
+    },
     verifyLogin() {
-      /*
-      var myHeaders = new Headers({
-        Accept: "application/json"
+      console.log("Finding user: " + this.username + "  " + this.password);
+
+      const fdata = this.retrievedUser.filter(data => {
+        if (data.name.match(this.username)) {
+          return data;
+        }
       });
-
-      var myInit = {
-        method: "GET",
-        headers: myHeaders,
-        //"Content-Type": "application/json"
-        //"Content-Type": "application/x-www-form-urlencoded"
-        mode: "no-cors",
-        cache: "default"
-      };
-
-      var myRequest = new Request("http://localhost:8080/user/all", myInit);
-
-      fetch(myRequest).then(function(response) {
-        this.users = response.data;
-        return this.users.filter(user => {
-          return user.name.toLowerCase().match(this.username);
-        });
+      this.retrievedUser = fdata;
+      this.retrievedUser.forEach(element => {
+        if (element.password === this.password) {
+          this.isUser = true;
+        }
+        if (element.identity === "Admin") {
+          this.isAdmin = true;
+        }
       });
-    }*/
-      fetch("http://localhost:8080/users/all", {
-        method: "GET",
-        mode: "no-cors",
-        cache: "default"
-      })
-        .then(function(response) {
-          if (response.ok) {
-            return response.blob();
-          }
-          throw new Error("Network response was not ok.");
-          //this.users = response.data;
-          //return this.usersfilter(user => {
-          //  return user.name.toLowerCase().match(this.username);
-          //});
-        })
-        .catch(function(error) {
-          console.log(
-            "There has been a problem with your fetch operation: ",
-            error.message
-          );
-        });
+      console.log(this.isUser);
+
+      if (this.isUser === true && this.isAdmin === true) {
+        this.url = "AdminHome";
+        return;
+      }
+      if (this.isUser === true && this.isAdmin === false) {
+        //console.log("ISUSER: "+this.isUser);
+        this.url = "GuestHome";
+        return;
+      }
+      if (this.isUser === false) {
+        alert("YOU ARE NOT A USER YET, PLEASE REGISTER FIRST!");
+        this.url = "";
+      }
+
+      return;
     }
   }
 };
